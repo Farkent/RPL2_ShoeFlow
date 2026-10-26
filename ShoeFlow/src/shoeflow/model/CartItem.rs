@@ -1,0 +1,1 @@
+shoeflow.model.CartItem

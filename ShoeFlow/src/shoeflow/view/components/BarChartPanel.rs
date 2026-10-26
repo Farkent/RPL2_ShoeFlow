@@ -1,0 +1,1 @@
+shoeflow.view.components.BarChartPanel
