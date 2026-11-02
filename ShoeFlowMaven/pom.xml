@@ -26,6 +26,14 @@
             <artifactId>mysql-connector-j</artifactId>
             <version>8.4.0</version>
         </dependency>
+
+        <!-- Hibernate ORM: memetakan class Java (Product, Variant) ke tabel MySQL.
+             Versi sesuai arahan asisten lab. Jakarta Persistence API ikut terunduh otomatis. -->
+        <dependency>
+            <groupId>org.hibernate.orm</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>6.6.59.Final</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -60,8 +68,13 @@
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
+                                <!-- Hibernate memakai banyak berkas META-INF/services; harus digabung, bukan ditimpa -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>shoeflow.view.LoginForm</mainClass>
+                                    <manifestEntries>
+                                        <Multi-Release>true</Multi-Release>
+                                    </manifestEntries>
                                 </transformer>
                             </transformers>
                             <filters>
