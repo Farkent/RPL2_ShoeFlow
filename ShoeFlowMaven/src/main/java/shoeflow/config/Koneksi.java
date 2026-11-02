@@ -22,4 +22,9 @@ public class Koneksi {
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASS);
     }
+
+    // Getter ini dipakai HibernateUtil agar URL, user, dan password cukup diatur di satu tempat.
+    public static String getUrl()  { return URL; }
+    public static String getUser() { return USER; }
+    public static String getPass() { return PASS; }
 }
