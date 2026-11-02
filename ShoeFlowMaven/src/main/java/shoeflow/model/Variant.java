@@ -1,23 +1,60 @@
 package shoeflow.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import java.math.BigDecimal;
 
 /**
- * Model tabel variants (ukuran/warna + stok).
- * Field brand, model, price diisi dari JOIN ke products agar POS tidak perlu query kedua.
+ * Model + Entity Hibernate untuk tabel variants (ukuran/warna + stok).
+ * Field brand, model, price hanya bantuan tampilan (diambil dari products), bukan kolom tabel.
  */
+@Entity
+@Table(name = "variants")
 public class Variant {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    // Kolom product_id dibaca sebagai angka biasa (untuk kode JDBC lama),
+    // sedangkan penulisannya dilakukan lewat relasi 'product' di bawah.
+    @Column(name = "product_id", insertable = false, updatable = false)
     private int productId;
+
+    // Relasi N : 1 ke tabel products (foreign key product_id)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
+
+    @Column(name = "size", nullable = false, length = 10)
     private String size;
+
+    @Column(name = "color", nullable = false, length = 30)
     private String color;
+
+    @Column(name = "sku", nullable = false, unique = true, length = 50)
     private String sku;
+
+    @Column(name = "stock", nullable = false)
     private int stock;
+
+    @Column(name = "min_stock", nullable = false)
     private int minStock;
 
-    // data hasil JOIN products
+    // data hasil JOIN products (tidak ada kolomnya di tabel variants)
+    @Transient
     private String brand;
+    @Transient
     private String model;
+    @Transient
     private BigDecimal price;
 
     public Variant() { }
@@ -26,6 +63,8 @@ public class Variant {
     public void setId(int id) { this.id = id; }
     public int getProductId() { return productId; }
     public void setProductId(int productId) { this.productId = productId; }
+    public Product getProduct() { return product; }
+    public void setProduct(Product product) { this.product = product; }
     public String getSize() { return size; }
     public void setSize(String size) { this.size = size; }
     public String getColor() { return color; }
