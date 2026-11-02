@@ -1,1 +1,0 @@
-shoeflow.model.PurchaseOrderItem
