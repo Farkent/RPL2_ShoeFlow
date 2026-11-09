@@ -11,13 +11,10 @@ import shoeflow.config.Koneksi;
 import shoeflow.model.*;
 import shoeflow.util.Roles;
 
-/** Logika bisnis Point of Sales (admin, manajer, dan kasir). */
 public class PosController extends BaseController {
 
     public PosController(User user) { super(user, Roles.ADMIN, Roles.MANAJER, Roles.KASIR); }
 
-    // ------------------------------------------------------------ pencarian produk
-    /** Cari varian berdasarkan kode SKU. Null jika tidak ada. */
     public Variant findBySku(String sku) throws SQLException {
         try (Connection c = Koneksi.getConnection();
              PreparedStatement ps = c.prepareStatement(VARIANT_SELECT + "WHERE v.sku = ?")) {
@@ -26,7 +23,6 @@ public class PosController extends BaseController {
         }
     }
 
-    /** Data untuk grid gambar produk (filter merek / model / SKU). */
     public List<Product> searchProducts(String keyword) throws SQLException {
         return queryProducts(keyword, 80);
     }
@@ -41,12 +37,6 @@ public class PosController extends BaseController {
         return list;
     }
 
-    // ------------------------------------------------------------ keranjang
-    /**
-     * Masukkan varian ke keranjang (SKU yang sama digabung).
-     * Total qty di keranjang tidak boleh melebihi stok -> mencegah overselling.
-     * @return pesan error, atau null jika berhasil.
-     */
     public String addToCart(List<CartItem> cart, Variant v, int qty) {
         if (qty <= 0) return "Jumlah harus lebih dari 0.";
         for (CartItem item : cart) {
@@ -63,7 +53,6 @@ public class PosController extends BaseController {
         return null;
     }
 
-    /** Tambah/kurangi qty item (delta +1/-1). Qty menjadi 0 -> item dihapus. @return pesan error atau null. */
     public String changeQty(List<CartItem> cart, int index, int delta) {
         CartItem it = cart.get(index);
         int nq = it.getQty() + delta;
@@ -79,13 +68,6 @@ public class PosController extends BaseController {
         return total;
     }
 
-    // ------------------------------------------------------------ pembayaran (DATABASE TRANSACTION)
-    /**
-     * PROSES PEMBAYARAN dengan DATABASE TRANSACTION.
-     * Insert sales + insert sale_items + potong stok harus sukses SEMUA atau dibatalkan SEMUA (rollback).
-     * Pemotongan stok memakai "stock >= ?" sehingga atomik: jika kasir lain lebih dulu mengambil stok,
-     * transaksi ini dibatalkan dan tidak terjadi stok minus.
-     */
     public Sale processPayment(List<CartItem> cart, String method, BigDecimal amountPaid) throws SQLException {
         if (cart.isEmpty()) throw new IllegalStateException("Keranjang masih kosong.");
         BigDecimal total = calcTotal(cart);
@@ -139,18 +121,16 @@ public class PosController extends BaseController {
                     psItem.executeUpdate();
                 }
             }
-            conn.commit();   // semua sukses -> simpan permanen
+            conn.commit();
             return sale;
         } catch (SQLException | RuntimeException e) {
-            rollbackQuietly(conn);   // ada yang gagal -> batalkan semua
+            rollbackQuietly(conn);
             throw e;
         } finally {
             closeQuietly(conn);
         }
     }
 
-    // ------------------------------------------------------------ riwayat transaksi
-    /** Kasir hanya melihat transaksinya sendiri; admin/manajer melihat semua. */
     public List<Sale> getHistory(LocalDate from, LocalDate to) throws SQLException {
         boolean onlyMine = Roles.KASIR.equalsIgnoreCase(user.getRoleName());
         String sql = "SELECT s.id, s.invoice_no, s.cashier_id, u.name, s.total, s.payment_method, s.amount_paid, s.change_amount, s.created_at "
@@ -175,7 +155,6 @@ public class PosController extends BaseController {
         return list;
     }
 
-    /** Item sebuah transaksi (untuk cetak ulang struk dari riwayat). */
     public List<CartItem> getSaleItems(int saleId) throws SQLException {
         String sql = "SELECT si.variant_id, v.sku, CONCAT(p.brand,' ',p.model), v.size, v.color, si.qty, si.unit_price "
                    + "FROM sale_items si JOIN variants v ON v.id = si.variant_id JOIN products p ON p.id = v.product_id "

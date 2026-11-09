@@ -20,38 +20,51 @@ import javax.swing.text.DocumentFilter;
 import shoeflow.util.Rupiah;
 
 /**
- * Design System Neobrutalism untuk ShoeFlow ERP:
- *  - High-contrast solid black borders (2px - 3px)
- *  - Hard, crisp offset drop shadows (3px - 5px tanpa blur)
- *  - Vibrant pop-color palette (Electric Yellow, Mint Lime, Sky Cyan, Coral Red, Purple)
- *  - Bold, punchy typography (Segoe UI Bold)
- *  - Tactile interactive feedback (tombol mechanical click & hover)
+ * Modern Design System Soft Neobrutalism untuk ShoeFlow ERP:
+ *  - Border Radius (Rounded Corners) pada seluruh komponen (Card, Button, Badge, Form)
+ *  - High-contrast crisp border (1.5px - 2px) dengan rounded drop shadows
+ *  - Vibrant colorful pop palette (Electric Yellow, Mint, Cyan, Violet, Orange, Coral)
+ *  - Responsive & fluid layout support untuk mini size maupun fullscreen
+ *  - Clean typography & modern iconography polish
  */
 public final class UiUtil {
 
-    // --- Neobrutalism Color Palette
-    public static final Color BORDER_DARK = new Color(0x18181B);   // Deep Ink Black
-    public static final Color SIDEBAR = new Color(0x121212);       // Dark Canvas Sidebar
-    public static final Color SIDEBAR_HOVER = new Color(0x27272A);
-    public static final Color ACCENT = new Color(0xFFE500);        // Neobrutal Electric Yellow
+    // --- Colorful Neobrutalism Palette
+    public static final Color BORDER_DARK = new Color(0x18181B);   // Deep Carbon Ink
+    public static final Color SIDEBAR = new Color(0x0F172A);       // Rich Dark Slate
+    public static final Color SIDEBAR_HOVER = new Color(0x1E293B);
+    public static final Color SIDEBAR_ACTIVE = new Color(0x334155);
+
+    public static final Color ACCENT = new Color(0xFFE500);        // Electric Sunshine Yellow
     public static final Color ACCENT_YELLOW = new Color(0xFFE500);
     public static final Color ACCENT_CYAN = new Color(0x38BDF8);   // Vibrant Sky Cyan
-    public static final Color DANGER = new Color(0xFF4343);        // High-Energy Coral Red
-    public static final Color SUCCESS = new Color(0x22C55E);       // Punchy Emerald / Mint Lime
+    public static final Color ACCENT_BLUE = new Color(0x3B82F6);   // Royal Electric Blue
+    public static final Color DANGER = new Color(0xFF4343);        // Coral Red
+    public static final Color SUCCESS = new Color(0x10B981);       // Fresh Emerald Mint
     public static final Color PURPLE = new Color(0xA855F7);        // Electric Violet
     public static final Color ORANGE = new Color(0xFB923C);        // Tangerine Orange
-    public static final Color NEUTRAL = new Color(0x52525B);       // Slate Zinc
-    public static final Color BG = new Color(0xFAF8F5);            // Warm Neobrutal Cream
+    public static final Color PINK = new Color(0xF472B6);          // Bubblegum Rose
+    public static final Color TEAL = new Color(0x14B8A6);          // Vibrant Teal
+    public static final Color NEUTRAL = new Color(0x64748B);       // Slate Zinc
+
+    public static final Color BG = new Color(0xF8FAFC);            // Clean Modern Canvas
     public static final Color CARD_BG = Color.WHITE;
     public static final Color LOW_ROW = new Color(0xFEE2E2);       // Warning Pink / Red
-    public static final Color TEXT_MAIN = new Color(0x18181B);
-    public static final Color TEXT_MUTED = new Color(0x52525B);
+    public static final Color TEXT_MAIN = new Color(0x0F172A);
+    public static final Color TEXT_MUTED = new Color(0x64748B);
 
     // --- Typography Tokens
+    public static final Font FONT_SMALL = new Font("Segoe UI", Font.PLAIN, 12);
     public static final Font FONT_REGULAR = new Font("Segoe UI", Font.PLAIN, 13);
     public static final Font FONT_BOLD = new Font("Segoe UI", Font.BOLD, 13);
-    public static final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 22);
+    public static final Font FONT_TITLE = new Font("Segoe UI", Font.BOLD, 20);
     public static final Font FONT_BIG = new Font("Segoe UI", Font.BOLD, 26);
+
+    // --- Radius Tokens
+    public static final int RADIUS_CARD = 14;
+    public static final int RADIUS_BTN = 10;
+    public static final int RADIUS_BADGE = 8;
+    public static final int RADIUS_INPUT = 8;
 
     private UiUtil() { }
 
@@ -77,17 +90,46 @@ public final class UiUtil {
         UIManager.put("TitledBorder.titleColor", BORDER_DARK);
     }
 
-    // ------------------------------------------------------------ NeoPanel (Card / Container)
+    // ------------------------------------------------------------ Rounded Border
+    public static class RoundedBorder implements Border {
+        private final Color color;
+        private final int thickness;
+        private final int radius;
+
+        public RoundedBorder(Color color, int thickness, int radius) {
+            this.color = color;
+            this.thickness = thickness;
+            this.radius = radius;
+        }
+
+        @Override public Insets getBorderInsets(Component c) {
+            return new Insets(thickness + 2, thickness + 4, thickness + 2, thickness + 4);
+        }
+
+        @Override public boolean isBorderOpaque() { return false; }
+
+        @Override public void paintBorder(Component c, Graphics g0, int x, int y, int width, int height) {
+            Graphics2D g = (Graphics2D) g0.create();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.setColor(color);
+            g.setStroke(new BasicStroke(thickness));
+            int pad = thickness / 2;
+            g.drawRoundRect(x + pad, y + pad, width - thickness, height - thickness, radius, radius);
+            g.dispose();
+        }
+    }
+
+    // ------------------------------------------------------------ NeoPanel (Card / Container dengan Rounded Corners)
     public static class NeoPanel extends JPanel {
         private Color fillColor = Color.WHITE;
         private Color strokeColor = BORDER_DARK;
         private Color shadowColor = BORDER_DARK;
         private int strokeWidth = 2;
         private int shadowOffset = 4;
-        private int arc = 0;
+        private int arc = RADIUS_CARD;
 
-        public NeoPanel() { this(Color.WHITE, 4, 0); }
-        public NeoPanel(Color fill) { this(fill, 4, 0); }
+        public NeoPanel() { this(Color.WHITE, 4, RADIUS_CARD); }
+        public NeoPanel(Color fill) { this(fill, 4, RADIUS_CARD); }
         public NeoPanel(Color fill, int shadow, int arc) {
             super();
             this.fillColor = fill;
@@ -121,6 +163,16 @@ public final class UiUtil {
 
         public Color getFillColor() { return fillColor; }
 
+        public void setArc(int arc) {
+            this.arc = arc;
+            repaint();
+        }
+
+        public void setShadowOffset(int shadowOffset) {
+            this.shadowOffset = shadowOffset;
+            repaint();
+        }
+
         @Override protected void paintComponent(Graphics g0) {
             Graphics2D g = (Graphics2D) g0.create();
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -130,19 +182,19 @@ public final class UiUtil {
             int bw = w - s;
             int bh = h - s;
 
-            // 1. Drop shadow (solid hitam tanpa blur)
+            // 1. Drop shadow dengan sudut membulat (soft neobrutal)
             if (s > 0) {
                 g.setColor(shadowColor);
                 if (arc > 0) g.fillRoundRect(s, s, bw, bh, arc, arc);
                 else g.fillRect(s, s, bw, bh);
             }
 
-            // 2. Body fill
+            // 2. Body fill membulat
             g.setColor(fillColor);
             if (arc > 0) g.fillRoundRect(0, 0, bw, bh, arc, arc);
             else g.fillRect(0, 0, bw, bh);
 
-            // 3. Solid outline border
+            // 3. Solid outline border membulat
             g.setColor(strokeColor);
             g.setStroke(new BasicStroke(strokeWidth));
             if (arc > 0) g.drawRoundRect(strokeWidth / 2, strokeWidth / 2, bw - strokeWidth, bh - strokeWidth, arc, arc);
@@ -153,14 +205,15 @@ public final class UiUtil {
         }
     }
 
-    public static NeoPanel panel(Color bg) { return new NeoPanel(bg, 4, 0); }
-    public static NeoPanel card(Color bg) { return new NeoPanel(bg, 4, 0); }
+    public static NeoPanel panel(Color bg) { return new NeoPanel(bg, 4, RADIUS_CARD); }
+    public static NeoPanel card(Color bg) { return new NeoPanel(bg, 4, RADIUS_CARD); }
 
-    // ------------------------------------------------------------ NeoButton (Tactile Mechanical Click)
+    // ------------------------------------------------------------ NeoButton (Tactile Mechanical Click + Rounded)
     public static class NeoButton extends JButton {
         private Color bg;
         private Color fg;
         private int shadow = 3;
+        private int arc = RADIUS_BTN;
         private boolean hover = false;
         private boolean pressed = false;
 
@@ -183,6 +236,11 @@ public final class UiUtil {
                 @Override public void mousePressed(MouseEvent e) { pressed = true; repaint(); }
                 @Override public void mouseReleased(MouseEvent e) { pressed = false; repaint(); }
             });
+        }
+
+        public void setArc(int arc) {
+            this.arc = arc;
+            repaint();
         }
 
         @Override public void setBackground(Color c) {
@@ -210,21 +268,24 @@ public final class UiUtil {
             int bw = w - s;
             int bh = h - s;
 
-            // 1. Drop shadow jika tidak ditekan
+            // 1. Drop shadow dengan sudut rounded jika tidak ditekan
             if (!pressed && isEnabled() && s > 0) {
                 g.setColor(BORDER_DARK);
-                g.fillRect(s, s, bw, bh);
+                if (arc > 0) g.fillRoundRect(s, s, bw, bh, arc, arc);
+                else g.fillRect(s, s, bw, bh);
             }
 
             // 2. Background button
-            Color fill = !isEnabled() ? new Color(0xE2E8F0) : (hover && !pressed ? brighten(bg, 0.08f) : bg);
+            Color fill = !isEnabled() ? new Color(0xE2E8F0) : (hover && !pressed ? brighten(bg, 0.09f) : bg);
             g.setColor(fill);
-            g.fillRect(ox, oy, bw, bh);
+            if (arc > 0) g.fillRoundRect(ox, oy, bw, bh, arc, arc);
+            else g.fillRect(ox, oy, bw, bh);
 
-            // 3. Border solid hitam 2px
+            // 3. Border solid hitam 2px rounded
             g.setColor(BORDER_DARK);
             g.setStroke(new BasicStroke(2f));
-            g.drawRect(ox + 1, oy + 1, bw - 2, bh - 2);
+            if (arc > 0) g.drawRoundRect(ox + 1, oy + 1, bw - 2, bh - 2, arc, arc);
+            else g.drawRect(ox + 1, oy + 1, bw - 2, bh - 2);
 
             // 4. Delegasi penggambaran icon & teks ke Swing (mendukung HTML & multi-line)
             Graphics2D gContent = (Graphics2D) g0.create();
@@ -245,23 +306,24 @@ public final class UiUtil {
         return new NeoButton(text, bg, fg);
     }
 
-    // ------------------------------------------------------------ NeoBadge (Tag / Pill)
+    // ------------------------------------------------------------ NeoBadge (Tag / Pill Rounded)
     public static JLabel badge(String text, Color bg, Color fg) {
         JLabel l = new JLabel(text, SwingConstants.CENTER) {
             @Override protected void paintComponent(Graphics g0) {
                 Graphics2D g = (Graphics2D) g0.create();
                 g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int w = getWidth(), h = getHeight();
-                // Shadow
+                int arc = RADIUS_BADGE;
+                // Shadow rounded
                 g.setColor(BORDER_DARK);
-                g.fillRect(2, 2, w - 2, h - 2);
-                // Fill
+                g.fillRoundRect(2, 2, w - 2, h - 2, arc, arc);
+                // Fill rounded
                 g.setColor(bg);
-                g.fillRect(0, 0, w - 2, h - 2);
-                // Border
+                g.fillRoundRect(0, 0, w - 2, h - 2, arc, arc);
+                // Border rounded
                 g.setColor(BORDER_DARK);
                 g.setStroke(new BasicStroke(1.5f));
-                g.drawRect(0, 0, w - 3, h - 3);
+                g.drawRoundRect(0, 0, w - 3, h - 3, arc, arc);
                 g.dispose();
                 super.paintComponent(g0);
             }
@@ -269,27 +331,27 @@ public final class UiUtil {
         l.setOpaque(false);
         l.setFont(FONT_BOLD.deriveFont(11f));
         l.setForeground(fg);
-        l.setBorder(BorderFactory.createEmptyBorder(3, 8, 5, 8));
+        l.setBorder(BorderFactory.createEmptyBorder(3, 10, 4, 10));
         return l;
     }
 
     public static JLabel title(String text) {
-        JLabel l = new JLabel("⚡ " + text);
+        JLabel l = new JLabel(text);
         l.setFont(FONT_TITLE);
         l.setForeground(TEXT_MAIN);
         l.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
         return l;
     }
 
-    // ------------------------------------------------------------ Form Input Styling
+    // ------------------------------------------------------------ Form Input Styling (Rounded Corners)
     public static JTextField styleField(JTextField f) {
         f.setFont(FONT_REGULAR);
         f.setBackground(Color.WHITE);
         f.setForeground(TEXT_MAIN);
         f.setCaretColor(TEXT_MAIN);
         f.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_DARK, 2),
-            BorderFactory.createEmptyBorder(6, 8, 6, 8)
+            new RoundedBorder(BORDER_DARK, 2, RADIUS_INPUT),
+            BorderFactory.createEmptyBorder(6, 10, 6, 10)
         ));
         return f;
     }
@@ -299,13 +361,13 @@ public final class UiUtil {
         c.setBackground(Color.WHITE);
         c.setForeground(TEXT_MAIN);
         c.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_DARK, 2),
-            BorderFactory.createEmptyBorder(4, 6, 4, 6)
+            new RoundedBorder(BORDER_DARK, 2, RADIUS_INPUT),
+            BorderFactory.createEmptyBorder(4, 8, 4, 8)
         ));
         return c;
     }
 
-    /** Form 2 kolom dengan Neobrutal labels & auto styling pada input fields */
+    /** Form 2 kolom dengan Soft Neobrutal labels & auto styling pada input fields */
     public static JPanel form(Object... labelAndField) {
         JPanel p = new JPanel(new GridBagLayout());
         p.setOpaque(false);
@@ -376,8 +438,8 @@ public final class UiUtil {
         s.setEditor(new JSpinner.DateEditor(s, "dd/MM/yyyy"));
         s.setFont(FONT_REGULAR);
         s.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_DARK, 2),
-            BorderFactory.createEmptyBorder(3, 6, 3, 6)
+            new RoundedBorder(BORDER_DARK, 2, RADIUS_INPUT),
+            BorderFactory.createEmptyBorder(3, 8, 3, 8)
         ));
         return s;
     }
@@ -386,11 +448,11 @@ public final class UiUtil {
         return ((Date) s.getValue()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
     }
 
-    // ------------------------------------------------------------ Neobrutal Table Styling
+    // ------------------------------------------------------------ Soft Neobrutal Table Styling
     public static <T extends JTable> T style(T t) {
-        t.setRowHeight(32);
+        t.setRowHeight(34);
         t.setFont(FONT_REGULAR);
-        t.setGridColor(new Color(0xE4E4E7));
+        t.setGridColor(new Color(0xE2E8F0));
         t.setShowGrid(true);
         t.setShowHorizontalLines(true);
         t.setShowVerticalLines(true);
@@ -401,7 +463,7 @@ public final class UiUtil {
         JTableHeader h = t.getTableHeader();
         h.setFont(FONT_BOLD);
         h.setReorderingAllowed(false);
-        h.setPreferredSize(new Dimension(0, 36));
+        h.setPreferredSize(new Dimension(0, 38));
         h.setBackground(BORDER_DARK);
         h.setForeground(Color.WHITE);
         h.setBorder(BorderFactory.createMatteBorder(0, 0, 2, 0, BORDER_DARK));
@@ -414,8 +476,8 @@ public final class UiUtil {
                 l.setForeground(ACCENT);
                 l.setFont(FONT_BOLD);
                 l.setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createMatteBorder(0, 0, 2, 1, new Color(0x3F3F46)),
-                    BorderFactory.createEmptyBorder(6, 10, 6, 10)
+                    BorderFactory.createMatteBorder(0, 0, 2, 1, new Color(0x334155)),
+                    BorderFactory.createEmptyBorder(6, 12, 6, 12)
                 ));
                 return l;
             }
@@ -427,22 +489,22 @@ public final class UiUtil {
             }
         };
         money.setHorizontalAlignment(SwingConstants.RIGHT);
-        money.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        money.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         t.setDefaultRenderer(BigDecimal.class, money);
 
         final SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm");
         DefaultTableCellRenderer dateRenderer = new DefaultTableCellRenderer() {
             @Override protected void setValue(Object v) { setText(v == null ? "-" : df.format((Date) v)); }
         };
-        dateRenderer.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        dateRenderer.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         t.setDefaultRenderer(Date.class, dateRenderer);
 
         DefaultTableCellRenderer strRenderer = new DefaultTableCellRenderer();
-        strRenderer.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+        strRenderer.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
         t.setDefaultRenderer(String.class, strRenderer);
 
         DefaultTableCellRenderer intRenderer = new DefaultTableCellRenderer() {
-            { setHorizontalAlignment(SwingConstants.RIGHT); setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8)); }
+            { setHorizontalAlignment(SwingConstants.RIGHT); setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10)); }
         };
         t.setDefaultRenderer(Integer.class, intRenderer);
 
@@ -515,4 +577,3 @@ public final class UiUtil {
         return new Color(r, g, b, c.getAlpha());
     }
 }
-

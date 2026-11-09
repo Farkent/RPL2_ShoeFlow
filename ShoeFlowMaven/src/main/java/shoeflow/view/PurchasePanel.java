@@ -13,8 +13,9 @@ import shoeflow.util.Rupiah;
 import shoeflow.view.components.*;
 
 /**
- * Manajemen Pembelian (admin/manajer): Buat Purchase Order, Penerimaan Barang (Goods Receipt), dan Supplier.
- * Kasir tidak bisa membuka panel ini (MainFrame tidak menampilkan menunya dan PurchaseController menolaknya).
+ * Manajemen Pembelian Modern Soft Neobrutalism (admin/manajer):
+ * Buat Purchase Order, Penerimaan Barang (Goods Receipt), dan Supplier.
+ * Layout responsif untuk minisize maupun fullsize.
  */
 public class PurchasePanel extends JPanel implements Refreshable {
 
@@ -23,10 +24,10 @@ public class PurchasePanel extends JPanel implements Refreshable {
 
     // ---- Buat PO
     private final JComboBox<Supplier> cmbSupplier = new JComboBox<>();
-    private final JTextField txtSku = new JTextField(14);
+    private final JTextField txtSku = new JTextField(12);
     private final JLabel lblPicked = new JLabel("(belum ada varian dipilih)");
-    private final JTextField txtQty = UiUtil.digitsOnly(new JTextField("1", 5));
-    private final JTextField txtCost = UiUtil.digitsOnly(new JTextField(9));
+    private final JTextField txtQty = UiUtil.digitsOnly(new JTextField("1", 4));
+    private final JTextField txtCost = UiUtil.digitsOnly(new JTextField(8));
     private Variant picked;
     private final PoItemsModel itemsModel = new PoItemsModel();
     private final JTable itemsTable = UiUtil.style(new JTable(itemsModel));
@@ -72,14 +73,14 @@ public class PurchasePanel extends JPanel implements Refreshable {
         bMgr.addActionListener(e -> tabs.setSelectedIndex(2));
 
         UiUtil.styleCombo(cmbSupplier);
-        UiUtil.NeoPanel head = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel head = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 10);
         head.setPadding(6, 10, 6, 10);
         JLabel lSupPrompt = new JLabel("Pilih Supplier:");
         lSupPrompt.setFont(UiUtil.FONT_BOLD);
         head.add(lSupPrompt); head.add(cmbSupplier); head.add(bMgr);
 
-        JButton bFind = UiUtil.button("🔍 Cari Varian...", UiUtil.ACCENT);
-        JButton bAdd = UiUtil.button("＋ Tambah ke PO", UiUtil.SUCCESS);
+        JButton bFind = UiUtil.button("Cari Varian...", UiUtil.ACCENT);
+        JButton bAdd = UiUtil.button("Tambah ke PO", UiUtil.SUCCESS);
         bFind.addActionListener(e -> openPicker());
         txtSku.addActionListener(e -> pickBySku());
         bAdd.addActionListener(e -> addRow());
@@ -88,7 +89,7 @@ public class PurchasePanel extends JPanel implements Refreshable {
         UiUtil.styleField(txtQty);
         UiUtil.styleField(txtCost);
 
-        UiUtil.NeoPanel entry = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel entry = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 10);
         entry.setPadding(6, 10, 6, 10);
         JLabel lSkuPrompt = new JLabel("SKU:"); lSkuPrompt.setFont(UiUtil.FONT_BOLD);
         JLabel lQtyPrompt = new JLabel("Qty:"); lQtyPrompt.setFont(UiUtil.FONT_BOLD);
@@ -105,14 +106,14 @@ public class PurchasePanel extends JPanel implements Refreshable {
 
         JPanel north = new JPanel(new BorderLayout(0, 8));
         north.setOpaque(false);
-        north.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        north.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
         north.add(head, BorderLayout.NORTH);
         north.add(entry, BorderLayout.SOUTH);
 
         itemsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JButton bDel = UiUtil.button("🗑️ Hapus Baris", UiUtil.DANGER);
+        JButton bDel = UiUtil.button("Hapus Baris", UiUtil.DANGER);
         JButton bClear = UiUtil.button("Kosongkan", Color.WHITE);
-        JButton bSave = UiUtil.button("💾 Simpan Purchase Order", UiUtil.SUCCESS);
+        JButton bSave = UiUtil.button("Simpan Purchase Order", UiUtil.SUCCESS);
         bDel.addActionListener(e -> {
             int r = itemsTable.getSelectedRow();
             if (r >= 0) { if (itemsTable.isEditing()) itemsTable.getCellEditor().stopCellEditing(); itemsModel.remove(r); updatePoTotal(); }
@@ -123,7 +124,7 @@ public class PurchasePanel extends JPanel implements Refreshable {
         lblPoTotal.setFont(UiUtil.FONT_BIG);
         lblPoTotal.setForeground(UiUtil.BORDER_DARK);
 
-        UiUtil.NeoPanel south = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel south = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.RIGHT, 10, 6), Color.WHITE, 3, 10);
         south.setPadding(8, 12, 8, 12);
         JLabel lTotalPrompt = new JLabel("Total Estimasi PO:");
         lTotalPrompt.setFont(UiUtil.FONT_BOLD);
@@ -181,13 +182,15 @@ public class PurchasePanel extends JPanel implements Refreshable {
             } catch (SQLException ex) { UiUtil.dbError(this, ex); }
         };
         kw.addActionListener(e -> search.run());
-        JButton go = new JButton("Cari");
+        JButton go = UiUtil.button("Cari", UiUtil.ACCENT);
         go.addActionListener(e -> search.run());
         JPanel top = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        top.add(new JLabel("Kata kunci:")); top.add(kw); top.add(go);
-        JPanel box = new JPanel(new BorderLayout());
+        top.setOpaque(false);
+        top.add(new JLabel("Kata Kunci:")); top.add(kw); top.add(go);
+        JPanel box = new JPanel(new BorderLayout(0, 8));
+        box.setOpaque(false);
         box.add(top, BorderLayout.NORTH);
-        JScrollPane sp = new JScrollPane(t);
+        JScrollPane sp = UiUtil.scroll(t);
         sp.setPreferredSize(new Dimension(620, 300));
         box.add(sp, BorderLayout.CENTER);
         search.run();
@@ -292,12 +295,12 @@ public class PurchasePanel extends JPanel implements Refreshable {
 
     // ================================================================= TAB 2: PENERIMAAN BARANG
     private JComponent buildReceiveTab() {
-        JButton bShow = UiUtil.button("🔍 Tampilkan", UiUtil.ACCENT);
-        JButton bRecv = UiUtil.button("✔ Setujui Penerimaan Barang", UiUtil.SUCCESS);
-        JButton bDel = UiUtil.button("🗑️ Hapus PO (pending)", UiUtil.DANGER);
+        JButton bShow = UiUtil.button("Tampilkan", UiUtil.ACCENT);
+        JButton bRecv = UiUtil.button("Setujui Penerimaan Barang", UiUtil.SUCCESS);
+        JButton bDel = UiUtil.button("Hapus PO (pending)", UiUtil.DANGER);
 
         UiUtil.styleCombo(cmbStatus);
-        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 10);
         tb.setPadding(6, 10, 6, 10);
         JLabel lStatusPrompt = new JLabel("Filter Status:");
         lStatusPrompt.setFont(UiUtil.FONT_BOLD);
@@ -311,9 +314,9 @@ public class PurchasePanel extends JPanel implements Refreshable {
         poTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         poTable.getSelectionModel().addListSelectionListener(e -> { if (!e.getValueIsAdjusting()) loadPoItems(); });
 
-        UiUtil.NeoPanel detail = new UiUtil.NeoPanel(new BorderLayout(0, 8), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel detail = new UiUtil.NeoPanel(new BorderLayout(0, 8), Color.WHITE, 3, 10);
         detail.setPadding(8, 10, 8, 10);
-        JLabel lDetailTitle = new JLabel("📦 RINCIAN BARANG PADA PO TERPILIH");
+        JLabel lDetailTitle = new JLabel("RINCIAN BARANG PADA PO TERPILIH");
         lDetailTitle.setFont(UiUtil.FONT_BOLD.deriveFont(12.5f));
         detail.add(lDetailTitle, BorderLayout.NORTH);
         detail.add(UiUtil.scroll(poItemTable), BorderLayout.CENTER);
@@ -326,7 +329,7 @@ public class PurchasePanel extends JPanel implements Refreshable {
 
         JPanel p = new JPanel(new BorderLayout(0, 10));
         p.setOpaque(false);
-        p.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        p.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
         p.add(tb, BorderLayout.NORTH);
         p.add(sp, BorderLayout.CENTER);
         return p;
@@ -386,11 +389,11 @@ public class PurchasePanel extends JPanel implements Refreshable {
 
     // ================================================================= TAB 3: SUPPLIER
     private JComponent buildSupplierTab() {
-        JButton bAdd = UiUtil.button("＋ Tambah Supplier", UiUtil.SUCCESS);
-        JButton bEdit = UiUtil.button("✏️ Edit Supplier", Color.WHITE);
-        JButton bDel = UiUtil.button("🗑️ Hapus Supplier", UiUtil.DANGER);
+        JButton bAdd = UiUtil.button("Tambah Supplier", UiUtil.SUCCESS);
+        JButton bEdit = UiUtil.button("Edit Supplier", UiUtil.ACCENT_CYAN);
+        JButton bDel = UiUtil.button("Hapus Supplier", UiUtil.DANGER);
 
-        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 10);
         tb.setPadding(6, 10, 6, 10);
         tb.add(bAdd); tb.add(bEdit); tb.add(bDel);
 
@@ -401,7 +404,7 @@ public class PurchasePanel extends JPanel implements Refreshable {
 
         JPanel p = new JPanel(new BorderLayout(0, 10));
         p.setOpaque(false);
-        p.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        p.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
         p.add(tb, BorderLayout.NORTH);
         p.add(UiUtil.scroll(supTable), BorderLayout.CENTER);
         return p;
@@ -426,7 +429,10 @@ public class PurchasePanel extends JPanel implements Refreshable {
         JTextField n = new JTextField(existing == null ? "" : s.getName(), 22);
         JTextField ph = new JTextField(existing == null ? "" : s.getPhone(), 22);
         JTextArea ad = new JTextArea(existing == null ? "" : s.getAddress(), 3, 22);
-        JPanel form = UiUtil.form("Nama", n, "Telepon", ph, "Alamat", new JScrollPane(ad));
+        ad.setFont(UiUtil.FONT_REGULAR);
+        ad.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 6));
+        JScrollPane spAd = UiUtil.scroll(ad);
+        JPanel form = UiUtil.form("Nama", n, "Telepon", ph, "Alamat", spAd);
         while (true) {
             if (JOptionPane.showConfirmDialog(this, form, existing == null ? "Tambah Supplier" : "Edit Supplier",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE) != JOptionPane.OK_OPTION) return;

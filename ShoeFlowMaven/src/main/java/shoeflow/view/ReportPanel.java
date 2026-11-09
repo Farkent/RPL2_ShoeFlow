@@ -14,7 +14,11 @@ import shoeflow.util.CsvExporter;
 import shoeflow.util.Rupiah;
 import shoeflow.view.components.*;
 
-/** Laporan (admin/manajer): Rekap Penjualan, Nilai Stok, Laba Rugi. Ada filter rentang tanggal & export CSV. */
+/**
+ * Laporan Bisnis & Analisis Keuangan Modern Soft Neobrutalism (admin/manajer):
+ * Rekap Penjualan, Nilai Stok, Laba Rugi dengan filter rentang tanggal & export CSV.
+ * Desain responsif saat minisize maupun fullsize.
+ */
 public class ReportPanel extends JPanel implements Refreshable {
 
     private final ReportController ctl;
@@ -40,14 +44,14 @@ public class ReportPanel extends JPanel implements Refreshable {
         setBackground(UiUtil.BG);
         add(UiUtil.title("Laporan Bisnis & Analisis Keuangan"), BorderLayout.NORTH);
 
-        JButton bShow = UiUtil.button("🔍 Tampilkan", UiUtil.ACCENT);
-        JButton bExport = UiUtil.button("📥 Export CSV (Tab Aktif)", UiUtil.SUCCESS);
+        JButton bShow = UiUtil.button("Tampilkan", UiUtil.ACCENT);
+        JButton bExport = UiUtil.button("Export CSV (Tab Aktif)", UiUtil.PURPLE);
         bShow.addActionListener(e -> refresh());
         bExport.addActionListener(e -> export());
 
         UiUtil.styleCombo(cmbPeriod);
 
-        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 10, 8), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 10, 8), Color.WHITE, 3, 10);
         tb.setPadding(6, 12, 6, 12);
         JLabel lFrom = new JLabel("Dari:"); lFrom.setFont(UiUtil.FONT_BOLD);
         JLabel lTo = new JLabel("Sampai:"); lTo.setFont(UiUtil.FONT_BOLD);
@@ -58,9 +62,9 @@ public class ReportPanel extends JPanel implements Refreshable {
         tb.add(lPeriod); tb.add(cmbPeriod);
         tb.add(bShow); tb.add(bExport);
 
-        tabs.addTab("📊 Rekap Penjualan", tab(recapTable, lblRecap));
-        tabs.addTab("📦 Nilai Stok Barang", tab(stockTable, lblStock));
-        tabs.addTab("💰 Laba Rugi", tab(plTable, lblPl));
+        tabs.addTab("Rekap Penjualan", tab(recapTable, lblRecap, UiUtil.ACCENT));
+        tabs.addTab("Nilai Stok Barang", tab(stockTable, lblStock, UiUtil.ACCENT_CYAN));
+        tabs.addTab("Laba Rugi", tab(plTable, lblPl, UiUtil.SUCCESS));
 
         JPanel center = new JPanel(new BorderLayout(0, 10));
         center.setOpaque(false);
@@ -69,12 +73,12 @@ public class ReportPanel extends JPanel implements Refreshable {
         add(center, BorderLayout.CENTER);
     }
 
-    private JPanel tab(JTable t, JLabel summary) {
+    private JPanel tab(JTable t, JLabel summary, Color accentColor) {
         summary.setFont(UiUtil.FONT_BOLD.deriveFont(13f));
         summary.setForeground(UiUtil.BORDER_DARK);
 
-        UiUtil.NeoPanel summaryBox = new UiUtil.NeoPanel(new BorderLayout(), UiUtil.ACCENT, 3, 0);
-        summaryBox.setPadding(8, 12, 8, 12);
+        UiUtil.NeoPanel summaryBox = new UiUtil.NeoPanel(new BorderLayout(), accentColor, 3, 10);
+        summaryBox.setPadding(8, 14, 8, 14);
         summaryBox.add(summary, BorderLayout.CENTER);
 
         JPanel p = new JPanel(new BorderLayout(0, 10));

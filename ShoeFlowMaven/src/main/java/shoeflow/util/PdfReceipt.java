@@ -11,12 +11,8 @@ import java.util.List;
 import shoeflow.model.CartItem;
 import shoeflow.model.Sale;
 
-/**
- * Pembuat struk digital berformat PDF TANPA library tambahan (PDF ditulis manual, font Courier).
- * Lebar kertas ~80mm (struk thermal). File disimpan di folder struk/.
- */
 public final class PdfReceipt {
-    private static final int W = 40;   // jumlah karakter per baris
+    private static final int W = 40;
 
     private PdfReceipt() { }
 
@@ -28,7 +24,6 @@ public final class PdfReceipt {
         return out;
     }
 
-    /** Menyusun isi struk per baris (juga bisa dipakai untuk preview teks). */
     public static List<String> buildLines(Sale s, List<CartItem> items) {
         List<String> l = new ArrayList<>();
         String line = repeat('-', W);
@@ -55,7 +50,6 @@ public final class PdfReceipt {
         return l;
     }
 
-    // ---------------------------------------------------------- penulis PDF minimal
     private static void writePdf(File file, List<String> lines) throws IOException {
         final int fontSize = 8, leading = 10, margin = 14;
         int width = 240, height = margin * 2 + leading * lines.size();

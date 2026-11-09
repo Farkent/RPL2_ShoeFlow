@@ -2,7 +2,6 @@ package shoeflow.model;
 
 import java.math.BigDecimal;
 
-/** Item keranjang belanja sementara (tidak disimpan ke database sampai pembayaran). */
 public class CartItem {
     private int variantId;
     private String sku;
@@ -11,10 +10,9 @@ public class CartItem {
     private String color;
     private int qty;
     private BigDecimal unitPrice;
-    private int availableStock;   // stok saat item dimasukkan, untuk validasi qty
+    private int availableStock;
 
     public CartItem() { }
-
     public CartItem(Variant v, int qty) {
         this.variantId = v.getId();
         this.sku = v.getSku();
@@ -27,7 +25,6 @@ public class CartItem {
     }
 
     public BigDecimal getSubtotal() { return unitPrice.multiply(BigDecimal.valueOf(qty)); }
-
     public int getVariantId() { return variantId; }
     public void setVariantId(int variantId) { this.variantId = variantId; }
     public String getSku() { return sku; }

@@ -15,11 +15,15 @@ import shoeflow.util.ImageUtil;
 import shoeflow.util.Rupiah;
 import shoeflow.view.components.*;
 
-/** Manajemen Produk: Master Model -> Varian & Stok, plus Daftar Inventaris (scroll horizontal). */
+/**
+ * Manajemen Produk Modern Soft Neobrutalism:
+ * Master Model -> Varian & Stok, plus Daftar Inventaris.
+ * Layout fleksibel dengan split pane responsif untuk minisize maupun fullsize.
+ */
 public class ProductPanel extends JPanel implements Refreshable {
 
     private final ProductController ctl;
-    private final JTextField txtSearch = new JTextField(20);
+    private final JTextField txtSearch = new JTextField(18);
 
     // Master model
     private final ReadOnlyModel prodModel = new ReadOnlyModel("Merek", "Model", "Harga Jual", "Total Stok", "Jml Varian");
@@ -33,7 +37,7 @@ public class ProductPanel extends JPanel implements Refreshable {
     private List<Variant> variants = new ArrayList<>();
 
     // Inventaris
-    private final JTextField txtInvSearch = new JTextField(20);
+    private final JTextField txtInvSearch = new JTextField(18);
     private final ReadOnlyModel invModel = new ReadOnlyModel("Merek", "Model", "Ukuran", "Warna", "SKU", "Harga Jual", "Stok", "Stok Min.", "Status", "Nilai Stok (Harga Jual)");
     private final JTable invTable = UiUtil.lowStockTable(invModel, 6, 7);
 
@@ -54,16 +58,16 @@ public class ProductPanel extends JPanel implements Refreshable {
     // ================================================================= TAB 1
     private JComponent buildMasterTab() {
         // --- toolbar model
-        JButton bSearch = UiUtil.button("🔍 Cari", UiUtil.ACCENT);
-        JButton bAdd = UiUtil.button("＋ Tambah Model", UiUtil.SUCCESS);
-        JButton bEdit = UiUtil.button("✏️ Edit Model", Color.WHITE);
-        JButton bDel = UiUtil.button("🗑️ Hapus Model", UiUtil.DANGER);
+        JButton bSearch = UiUtil.button("Cari", UiUtil.ACCENT);
+        JButton bAdd = UiUtil.button("Tambah Model", UiUtil.SUCCESS);
+        JButton bEdit = UiUtil.button("Edit Model", UiUtil.ACCENT_CYAN);
+        JButton bDel = UiUtil.button("Hapus Model", UiUtil.DANGER);
 
         UiUtil.styleField(txtSearch);
 
-        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 10);
         tb.setPadding(6, 10, 6, 10);
-        JLabel lPrompt = new JLabel("Cari merek / model / SKU:");
+        JLabel lPrompt = new JLabel("Cari Merek / Model / SKU:");
         lPrompt.setFont(UiUtil.FONT_BOLD);
         tb.add(lPrompt); tb.add(txtSearch); tb.add(bSearch);
         tb.add(bAdd); tb.add(bEdit); tb.add(bDel);
@@ -77,30 +81,31 @@ public class ProductPanel extends JPanel implements Refreshable {
         prodTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         prodTable.getSelectionModel().addListSelectionListener(e -> { if (!e.getValueIsAdjusting()) onProductSelected(); });
 
-        UiUtil.NeoPanel imgBox = new UiUtil.NeoPanel(new BorderLayout(0, 4), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel imgBox = new UiUtil.NeoPanel(new BorderLayout(0, 4), Color.WHITE, 3, 10);
         imgBox.setPadding(8, 8, 8, 8);
         imgBox.setPreferredSize(new Dimension(170, 170));
-        JLabel imgTitle = new JLabel("🖼️ Foto Sepatu", SwingConstants.CENTER);
-        imgTitle.setFont(UiUtil.FONT_BOLD.deriveFont(11.5f));
+        imgBox.setMinimumSize(new Dimension(150, 150));
+        JLabel imgTitle = new JLabel("Foto Sepatu", SwingConstants.CENTER);
+        imgTitle.setFont(UiUtil.FONT_BOLD.deriveFont(12f));
         imgPreview.setPreferredSize(new Dimension(150, 130));
         imgBox.add(imgTitle, BorderLayout.NORTH);
         imgBox.add(imgPreview, BorderLayout.CENTER);
 
-        JPanel upper = new JPanel(new BorderLayout(10, 10));
+        JPanel upper = new JPanel(new BorderLayout(10, 8));
         upper.setOpaque(false);
-        upper.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        upper.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
         upper.add(tb, BorderLayout.NORTH);
         upper.add(UiUtil.scroll(prodTable), BorderLayout.CENTER);
         upper.add(imgBox, BorderLayout.EAST);
 
         // --- varian
-        JButton vAdd = UiUtil.button("＋ Tambah Varian", UiUtil.SUCCESS);
-        JButton vEdit = UiUtil.button("✏️ Edit Varian", Color.WHITE);
-        JButton vDel = UiUtil.button("🗑️ Hapus Varian", UiUtil.DANGER);
+        JButton vAdd = UiUtil.button("Tambah Varian", UiUtil.SUCCESS);
+        JButton vEdit = UiUtil.button("Edit Varian", UiUtil.ACCENT_CYAN);
+        JButton vDel = UiUtil.button("Hapus Varian", UiUtil.DANGER);
 
-        UiUtil.NeoPanel vb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel vb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 10);
         vb.setPadding(6, 10, 6, 10);
-        JLabel lVarPrompt = new JLabel("Varian ukuran/warna & stok dari model terpilih:");
+        JLabel lVarPrompt = new JLabel("Varian Ukuran / Warna & Stok dari Model Terpilih:");
         lVarPrompt.setFont(UiUtil.FONT_BOLD);
         vb.add(lVarPrompt); vb.add(vAdd); vb.add(vEdit); vb.add(vDel);
 
@@ -124,12 +129,12 @@ public class ProductPanel extends JPanel implements Refreshable {
 
     // ================================================================= TAB 2
     private JComponent buildInventoryTab() {
-        JButton b = UiUtil.button("🔍 Cari", UiUtil.ACCENT);
-        JButton ex = UiUtil.button("📥 Export CSV", UiUtil.SUCCESS);
+        JButton b = UiUtil.button("Cari", UiUtil.ACCENT);
+        JButton ex = UiUtil.button("Export CSV", UiUtil.PURPLE);
 
         UiUtil.styleField(txtInvSearch);
 
-        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 10);
         tb.setPadding(6, 10, 6, 10);
         JLabel lCari = new JLabel("Cari:");
         lCari.setFont(UiUtil.FONT_BOLD);
@@ -220,7 +225,7 @@ public class ProductPanel extends JPanel implements Refreshable {
         JTextField tPrice = UiUtil.digitsOnly(new JTextField(existing == null ? "" : p.getPrice().toBigInteger().toString(), 20));
         final String[] img = {existing == null ? null : p.getImage()};
         JLabel lblImg = new JLabel(ImageUtil.load(img[0], 96, 80));
-        JButton bImg = new JButton("Pilih Gambar...");
+        JButton bImg = UiUtil.button("Pilih Gambar...", UiUtil.ACCENT_CYAN);
         bImg.addActionListener(e -> {
             JFileChooser fc = new JFileChooser();
             fc.setFileFilter(new javax.swing.filechooser.FileNameExtensionFilter("Gambar (png, jpg)", "png", "jpg", "jpeg"));
@@ -230,6 +235,7 @@ public class ProductPanel extends JPanel implements Refreshable {
             }
         });
         JPanel imgBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        imgBox.setOpaque(false);
         imgBox.add(lblImg); imgBox.add(bImg);
         JPanel form = UiUtil.form("Merek", tBrand, "Model", tModel, "Harga Jual (Rp)", tPrice, "Gambar", imgBox);
 
@@ -270,9 +276,10 @@ public class ProductPanel extends JPanel implements Refreshable {
         JTextField tSku = new JTextField(existing == null ? "" : v.getSku(), 18);
         JTextField tStock = UiUtil.digitsOnly(new JTextField(existing == null ? "0" : String.valueOf(v.getStock()), 8));
         JTextField tMin = UiUtil.digitsOnly(new JTextField(existing == null ? "2" : String.valueOf(v.getMinStock()), 8));
-        JButton auto = new JButton("Auto");
+        JButton auto = UiUtil.button("Auto", UiUtil.ACCENT);
         auto.addActionListener(e -> tSku.setText(ProductController.suggestSku(p, tSize.getText(), tColor.getText())));
         JPanel skuBox = new JPanel(new BorderLayout(4, 0));
+        skuBox.setOpaque(false);
         skuBox.add(tSku, BorderLayout.CENTER); skuBox.add(auto, BorderLayout.EAST);
         JPanel form = UiUtil.form("Model", new JLabel(p.getName()), "Ukuran", tSize, "Warna", tColor,
                 "SKU", skuBox, "Stok", tStock, "Stok Minimum", tMin);

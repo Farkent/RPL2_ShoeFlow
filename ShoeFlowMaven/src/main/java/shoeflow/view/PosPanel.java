@@ -22,21 +22,14 @@ import shoeflow.util.PdfReceipt;
 import shoeflow.util.Rupiah;
 import shoeflow.view.components.*;
 
-/**
- * Point of Sales. Dua tab sesuai diagram navigasi:
- *   Proses Transaksi : Scan/Cari Produk -> Keranjang Belanja -> Proses Pembayaran -> Cetak Struk (PDF)
- *   Riwayat Transaksi
- */
 public class PosPanel extends JPanel implements Refreshable {
 
     private final User user;
     private final PosController ctl;
     private final List<CartItem> cart = new ArrayList<>();
-
-    // --- Proses Transaksi
-    private final JTextField txtSku = new JTextField(16);
+    private final JTextField txtSku = new JTextField(14);
     private final JTextField txtQty = UiUtil.digitsOnly(new JTextField("1", 3));
-    private final JPanel grid = new JPanel(new GridLayout(0, 4, 10, 10));
+    private final JPanel grid = new JPanel(new GridLayout(0, 3, 10, 10));
     private final JLabel lblInfo = new JLabel(" ");
     private final ReadOnlyModel cartModel = new ReadOnlyModel("SKU", "Produk", "Uk.", "Warna", "Qty", "Harga", "Subtotal");
     private final JTable cartTable = UiUtil.style(new JTable(cartModel));
@@ -44,8 +37,6 @@ public class PosPanel extends JPanel implements Refreshable {
     private final JLabel lblKembali = new JLabel("Rp0");
     private final JComboBox<String> cmbMetode = new JComboBox<>(new String[]{"Tunai", "Transfer Bank"});
     private final JTextField txtBayar = UiUtil.digitsOnly(new JTextField(12));
-
-    // --- Riwayat
     private final JSpinner spFrom = UiUtil.dateSpinner(LocalDate.now().minusDays(7));
     private final JSpinner spTo = UiUtil.dateSpinner(LocalDate.now());
     private final ReadOnlyModel histModel = new ReadOnlyModel("Invoice", "Waktu", "Kasir", "Metode", "Total");
@@ -69,18 +60,16 @@ public class PosPanel extends JPanel implements Refreshable {
 
     @Override public void refresh() { loadGrid(""); updateTotals(); }
 
-    // ================================================================= TAB: PROSES TRANSAKSI
     private JComponent buildTransactionTab() {
-        // ----- kiri: pencarian SKU + grid gambar produk
-        JButton bCari = UiUtil.button("🔍 Cari / Tambah", UiUtil.ACCENT);
+        JButton bCari = UiUtil.button("Cari / Tambah", UiUtil.ACCENT);
         JButton bAll = UiUtil.button("Semua Produk", Color.WHITE);
 
         UiUtil.styleField(txtSku);
         UiUtil.styleField(txtQty);
 
-        UiUtil.NeoPanel searchPanel = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel searchPanel = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 8, 6), Color.WHITE, 3, 10);
         searchPanel.setPadding(6, 10, 6, 10);
-        JLabel lblSkuPrompt = new JLabel("Kode SKU / kata kunci:");
+        JLabel lblSkuPrompt = new JLabel("Kode SKU / Kata Kunci:");
         lblSkuPrompt.setFont(UiUtil.FONT_BOLD);
         JLabel lblQtyPrompt = new JLabel("Qty:");
         lblQtyPrompt.setFont(UiUtil.FONT_BOLD);
@@ -114,9 +103,8 @@ public class PosPanel extends JPanel implements Refreshable {
         left.add(leftTop, BorderLayout.NORTH);
         left.add(gridScroll, BorderLayout.CENTER);
 
-        // ----- kanan: keranjang + pembayaran
-        JButton bPlus = UiUtil.button(" + ", UiUtil.ACCENT);
-        JButton bMinus = UiUtil.button(" − ", UiUtil.ACCENT);
+        JButton bPlus = UiUtil.button(" + ", UiUtil.SUCCESS);
+        JButton bMinus = UiUtil.button(" − ", UiUtil.ORANGE);
         JButton bHapus = UiUtil.button("Hapus Item", UiUtil.DANGER);
         JButton bReset = UiUtil.button("Kosongkan", Color.WHITE);
         bPlus.addActionListener(e -> changeQty(1));
@@ -129,9 +117,9 @@ public class PosPanel extends JPanel implements Refreshable {
         cartTools.add(bPlus); cartTools.add(bMinus); cartTools.add(bHapus); cartTools.add(bReset);
         cartTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
-        UiUtil.NeoPanel cartBox = new UiUtil.NeoPanel(new BorderLayout(0, 8), Color.WHITE, 4, 0);
+        UiUtil.NeoPanel cartBox = new UiUtil.NeoPanel(new BorderLayout(0, 8), Color.WHITE, 4, 14);
         cartBox.setPadding(10, 12, 10, 12);
-        JLabel lblCartTitle = new JLabel("🛒 KERANJANG BELANJA");
+        JLabel lblCartTitle = new JLabel("KERANJANG BELANJA");
         lblCartTitle.setFont(UiUtil.FONT_BOLD.deriveFont(13f));
         lblCartTitle.setForeground(UiUtil.BORDER_DARK);
 
@@ -148,7 +136,7 @@ public class PosPanel extends JPanel implements Refreshable {
         lblKembali.setFont(UiUtil.FONT_BOLD.deriveFont(16f));
         lblKembali.setForeground(new Color(0x16A34A));
 
-        JButton bBayar = UiUtil.button("PROSES PEMBAYARAN & CETAK STRUK ⚡", UiUtil.SUCCESS);
+        JButton bBayar = UiUtil.button("PROSES PEMBAYARAN & CETAK STRUK", UiUtil.SUCCESS);
         bBayar.setFont(UiUtil.FONT_BOLD.deriveFont(13.5f));
         bBayar.setPreferredSize(new Dimension(0, 44));
         bBayar.addActionListener(e -> doPayment());
@@ -159,10 +147,10 @@ public class PosPanel extends JPanel implements Refreshable {
         JPanel pay = UiUtil.form("TOTAL", lblTotal, "Metode", cmbMetode, "Dibayar (Rp)", txtBayar, "Kembalian", lblKembali);
         pay.setOpaque(false);
 
-        UiUtil.NeoPanel payBox = new UiUtil.NeoPanel(new BorderLayout(0, 10), Color.WHITE, 4, 0);
+        UiUtil.NeoPanel payBox = new UiUtil.NeoPanel(new BorderLayout(0, 8), Color.WHITE, 4, 14);
         payBox.setPadding(10, 12, 10, 12);
 
-        JLabel lblPayTitle = new JLabel("💳 RINGKASAN PEMBAYARAN");
+        JLabel lblPayTitle = new JLabel("RINGKASAN PEMBAYARAN");
         lblPayTitle.setFont(UiUtil.FONT_BOLD.deriveFont(13f));
         lblPayTitle.setForeground(UiUtil.BORDER_DARK);
 
@@ -182,20 +170,23 @@ public class PosPanel extends JPanel implements Refreshable {
             updateTotals();
         });
 
-        JPanel right = new JPanel(new BorderLayout(0, 12));
+        JPanel right = new JPanel(new BorderLayout(0, 10));
         right.setOpaque(false);
-        right.setPreferredSize(new Dimension(460, 0));
+        right.setMinimumSize(new Dimension(340, 0));
+        right.setPreferredSize(new Dimension(440, 0));
         right.add(cartBox, BorderLayout.CENTER);
         right.add(payBox, BorderLayout.SOUTH);
 
-        JPanel p = new JPanel(new BorderLayout(12, 0));
-        p.setOpaque(false);
-        p.add(left, BorderLayout.CENTER);
-        p.add(right, BorderLayout.EAST);
-        return p;
+        // Responsive SplitPane antar produk & keranjang
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, left, right);
+        split.setResizeWeight(0.58);
+        split.setOpaque(false);
+        split.setBorder(null);
+        split.setDividerSize(8);
+
+        return split;
     }
 
-    // ----------------------------------------------------------------- grid & pencarian
     private void loadGrid(String keyword) {
         try {
             grid.removeAll();
@@ -207,14 +198,13 @@ public class PosPanel extends JPanel implements Refreshable {
         } catch (SQLException ex) { UiUtil.dbError(this, ex); }
     }
 
-    /** Kartu produk Neobrutalism (border solid hitam 2px, hard drop shadow, price badge kuning). */
     private JButton buildCard(Product p) {
         boolean out = p.getTotalStock() <= 0;
         String html = "<html><center><div style='padding-top:4px;'><b>" + UiUtil.esc(p.getName()) + "</b></div>"
-                + "<div style='margin-top:4px;'><span style='background:#FFE500;color:#18181B;border:1px solid #18181B;padding:2px 8px;'><b>"
+                + "<div style='margin-top:4px;'><span style='background:#FFE500;color:#18181B;border:1px solid #18181B;padding:2px 8px;border-radius:4px;'><b>"
                 + Rupiah.format(p.getPrice()) + "</b></span></div>"
                 + "<div style='margin-top:6px;'>"
-                + (out ? "<font color='#DC2626'><b>● STOK HABIS</b></font>" : "<font color='#16A34A'><b>✔ Stok: " + p.getTotalStock() + " pasang</b></font>")
+                + (out ? "<font color='#DC2626'><b>STOK HABIS</b></font>" : "<font color='#16A34A'><b>Stok: " + p.getTotalStock() + " pasang</b></font>")
                 + "</div></center></html>";
 
         JButton b = new JButton(html, ImageUtil.load(p.getImage(), 130, 95)) {
@@ -223,16 +213,14 @@ public class PosPanel extends JPanel implements Refreshable {
                 g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int w = getWidth(), h = getHeight();
                 int s = 3;
-                // Hard Shadow
+                int arc = 12;
                 g.setColor(UiUtil.BORDER_DARK);
-                g.fillRect(s, s, w - s, h - s);
-                // Card Fill
+                g.fillRoundRect(s, s, w - s, h - s, arc, arc);
                 g.setColor(Color.WHITE);
-                g.fillRect(0, 0, w - s, h - s);
-                // Solid Border 2px
+                g.fillRoundRect(0, 0, w - s, h - s, arc, arc);
                 g.setColor(UiUtil.BORDER_DARK);
                 g.setStroke(new BasicStroke(2f));
-                g.drawRect(0, 0, w - s - 1, h - s - 1);
+                g.drawRoundRect(0, 0, w - s - 1, h - s - 1, arc, arc);
                 g.dispose();
                 super.paintComponent(g0);
             }
@@ -243,13 +231,12 @@ public class PosPanel extends JPanel implements Refreshable {
         b.setBorder(BorderFactory.createEmptyBorder(6, 6, 9, 9));
         b.setVerticalTextPosition(SwingConstants.BOTTOM);
         b.setHorizontalTextPosition(SwingConstants.CENTER);
-        b.setPreferredSize(new Dimension(160, 205));
+        b.setPreferredSize(new Dimension(150, 195));
         b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         b.addActionListener(e -> chooseVariant(p));
         return b;
     }
 
-    /** Enter pada kolom SKU: jika SKU persis ditemukan -> langsung masuk keranjang; jika tidak -> filter grid. */
     private void searchOrAdd() {
         String kw = txtSku.getText().trim();
         if (kw.isEmpty()) { loadGrid(""); return; }
@@ -267,7 +254,6 @@ public class PosPanel extends JPanel implements Refreshable {
         } catch (SQLException ex) { UiUtil.dbError(this, ex); }
     }
 
-    /** Klik kartu produk -> pilih ukuran/warna & qty. */
     private void chooseVariant(Product p) {
         try {
             List<Variant> all = ctl.getVariantsOfProduct(p.getId());
@@ -297,7 +283,6 @@ public class PosPanel extends JPanel implements Refreshable {
         } catch (SQLException ex) { UiUtil.dbError(this, ex); }
     }
 
-    // ----------------------------------------------------------------- keranjang
     private void addToCart(Variant v, int qty) {
         String err = ctl.addToCart(cart, v, qty);
         if (err != null) { UiUtil.warn(this, err); return; }
@@ -342,7 +327,6 @@ public class PosPanel extends JPanel implements Refreshable {
         lblKembali.setText(change.signum() >= 0 ? Rupiah.format(change) : "Kurang " + Rupiah.format(change.negate()));
     }
 
-    // ----------------------------------------------------------------- pembayaran + struk
     private void doPayment() {
         if (cart.isEmpty()) { UiUtil.warn(this, "Keranjang masih kosong."); return; }
         boolean tunai = cmbMetode.getSelectedIndex() == 0;
@@ -363,7 +347,6 @@ public class PosPanel extends JPanel implements Refreshable {
         } catch (SQLException ex) { UiUtil.dbError(this, ex); }
     }
 
-    /** Membuat struk PDF di folder struk/ lalu membukanya (untuk dicetak). */
     private void printReceipt(Sale sale, List<CartItem> items, boolean isNew) {
         try {
             File pdf = PdfReceipt.create(sale, items);
@@ -381,12 +364,11 @@ public class PosPanel extends JPanel implements Refreshable {
         }
     }
 
-    // ================================================================= TAB: RIWAYAT
     private JComponent buildHistoryTab() {
-        JButton bShow = UiUtil.button("🔍 Tampilkan", UiUtil.ACCENT);
-        JButton bPrint = UiUtil.button("🖨️ Lihat / Cetak Ulang Struk (PDF)", UiUtil.SUCCESS);
+        JButton bShow = UiUtil.button("Tampilkan", UiUtil.ACCENT);
+        JButton bPrint = UiUtil.button("Lihat / Cetak Ulang Struk (PDF)", UiUtil.SUCCESS);
 
-        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 10, 8), Color.WHITE, 3, 0);
+        UiUtil.NeoPanel tb = new UiUtil.NeoPanel(new FlowLayout(FlowLayout.LEFT, 10, 8), Color.WHITE, 3, 10);
         tb.setPadding(6, 10, 6, 10);
 
         JLabel lFrom = new JLabel("Dari:"); lFrom.setFont(UiUtil.FONT_BOLD);

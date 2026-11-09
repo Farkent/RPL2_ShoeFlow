@@ -1,32 +1,28 @@
 package shoeflow.controller;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import shoeflow.config.Koneksi;
+import shoeflow.config.AppContext;
+import shoeflow.dao.UserDao;
 import shoeflow.model.User;
+import shoeflow.util.DaoExceptions;
 import shoeflow.util.PasswordUtil;
 import shoeflow.view.MainFrame;
 
-/** Logika autentikasi dan pembukaan jendela utama sesuai role. */
+/** Logika autentikasi (lewat Spring DAO) dan pembukaan jendela utama sesuai role. */
 public class LoginController {
 
-    /** @return objek User jika login valid, null jika username/password salah. */
+    /**
+     * Pengecekan username dilakukan UserDao (Spring DAO + JdbcTemplate), sedangkan pencocokan password tetap di sini.
+     * @return objek User jika login valid, null jika username/password salah.
+     */
     public User login(String username, String password) throws SQLException {
-        String sql = "SELECT u.id, u.role_id, r.name AS role_name, u.name, u.username, u.password "
-                   + "FROM users u JOIN roles r ON r.id = u.role_id WHERE u.username = ?";
-        try (Connection c = Koneksi.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setString(1, username);   // PreparedStatement -> aman dari SQL Injection
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next() && PasswordUtil.matches(password, rs.getString("password"))) {
-                    return new User(rs.getInt("id"), rs.getInt("role_id"), rs.getString("role_name"),
-                            rs.getString("name"), rs.getString("username"), rs.getString("password"));
-                }
-            }
+        try {
+            User u = AppContext.getBean(UserDao.class).findByUsername(username);
+            if (u != null && PasswordUtil.matches(password, u.getPassword())) return u;
+            return null;
+        } catch (RuntimeException e) {          // DataAccessException (Spring) -> SQLException agar LoginForm tidak berubah
+            throw DaoExceptions.toSql(e);
         }
-        return null;
     }
 
     /**

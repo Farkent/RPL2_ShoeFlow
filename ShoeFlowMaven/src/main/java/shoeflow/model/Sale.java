@@ -3,14 +3,13 @@ package shoeflow.model;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-/** Model tabel sales (header transaksi penjualan). */
 public class Sale {
     private int id;
     private String invoiceNo;
     private int cashierId;
     private String cashierName;
     private BigDecimal total;
-    private String paymentMethod;   // tunai / transfer
+    private String paymentMethod;
     private BigDecimal amountPaid;
     private BigDecimal changeAmount;
     private Timestamp createdAt;
