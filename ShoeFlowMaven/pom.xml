@@ -9,7 +9,7 @@
     <version>1.0.0</version>
     <packaging>jar</packaging>
     <name>ShoeFlow ERP</name>
-    <description>ERP toko sepatu: inventaris, POS, pembelian, dan laporan (Java Swing + MySQL)</description>
+    <description>ERP toko sepatu: inventaris, POS, pembelian, dan laporan (Java Swing + MySQL + Hibernate + Spring DAO)</description>
 
     <properties>
         <!-- Versi Java (butuh JDK 17 atau lebih baru) dan encoding source -->
@@ -17,6 +17,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Kelas utama: dipakai tombol Run di NetBeans dan perintah mvn exec:java -->
         <exec.mainClass>shoeflow.view.LoginForm</exec.mainClass>
+        <!-- Versi Spring Framework: semua modul Spring memakai versi yang sama -->
+        <spring.version>6.2.1</spring.version>
     </properties>
 
     <dependencies>
@@ -33,6 +35,32 @@
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-core</artifactId>
             <version>6.6.59.Final</version>
+        </dependency>
+
+        <!-- Spring Framework (Pertemuan 5: Spring DAO) -->
+        <!-- spring-context: IoC container + Dependency Injection (AnnotationConfigApplicationContext, @Configuration, @ComponentScan) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <!-- spring-tx: @Transactional (declarative transaction) + hierarki DataAccessException + @Repository exception translation -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <!-- spring-jdbc: JdbcTemplate dan DataSource (DAO berbasis JDBC) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <!-- spring-orm: integrasi Hibernate lewat JPA (EntityManagerFactory, JpaTransactionManager) -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${spring.version}</version>
         </dependency>
     </dependencies>
 
@@ -70,6 +98,16 @@
                             <transformers>
                                 <!-- Hibernate memakai banyak berkas META-INF/services; harus digabung, bukan ditimpa -->
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <!-- Spring juga memakai berkas META-INF milik sendiri; digabung agar tidak saling menimpa -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.handlers</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.schemas</resource>
+                                </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/spring.factories</resource>
+                                </transformer>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>shoeflow.view.LoginForm</mainClass>
                                     <manifestEntries>
