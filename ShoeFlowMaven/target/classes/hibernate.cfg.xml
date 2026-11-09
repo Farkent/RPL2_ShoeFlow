@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Driver JDBC. URL, username, dan password diambil dari config/Koneksi.java
+             (diatur oleh HibernateUtil) supaya tidak perlu diubah di dua tempat. -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+
+        <!-- Dialect biasanya terdeteksi otomatis. Jika muncul error dialect pada XAMPP (MariaDB),
+             hapus tanda komentar pada baris di bawah. -->
+        <!-- <property name="hibernate.dialect">org.hibernate.dialect.MariaDBDialect</property> -->
+
+        <!-- Tabel sudah dibuat manual di MySQL, jadi Hibernate TIDAK boleh membuat/mengubah tabel. -->
+        <property name="hibernate.hbm2ddl.auto">none</property>
+
+        <!-- Menampilkan SQL hasil buatan Hibernate di console (berguna untuk laporan). Ubah ke false bila terlalu ramai. -->
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <!-- Daftar class model yang dipetakan ke tabel (ORM mapping) -->
+        <mapping class="shoeflow.model.Product"/>
+        <mapping class="shoeflow.model.Variant"/>
+    </session-factory>
+</hibernate-configuration>
